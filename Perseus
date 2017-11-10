@@ -1,0 +1,275 @@
+/**
+ * 
+ */
+package bots;
+
+import java.awt.Graphics;
+import java.awt.Image;
+
+import arena.BattleBotArena;
+import arena.BotInfo;
+import arena.Bullet;
+
+/**
+ * @author 1salermohec
+ *
+ */
+public class Perseus extends Bot {
+	BotHelper helper;
+	BotInfo closest;
+	Image up, down, left, right, current;
+	String name;
+	Boolean danger;
+	private int counter = 50;
+	private int move ;
+	private double x, y;
+	private int random = (int)(Math.random()*3)+1;
+
+	
+	/**
+	 * 
+	 */
+	public Perseus() {
+		// TODO Auto-generated constructor stub
+		
+	}
+	
+	/* (non-Javadoc)
+	 * @see bots.Bot#draw(java.awt.Graphics, int, int)
+	 */
+	@Override
+	public void draw(Graphics g, int x, int y) {
+		g.drawImage(current, x, y, Bot.RADIUS*2, Bot.RADIUS*2, null);
+	}
+
+	/* (non-Javadoc)
+	 * @see bots.Bot#getMove(arena.BotInfo, boolean, arena.BotInfo[], arena.BotInfo[], arena.Bullet[])
+	 */
+	@Override
+	public int getMove(BotInfo me, boolean shotOK, BotInfo[] liveBots,
+			BotInfo[] deadBots, Bullet[] bullets) {
+
+		for(int i = 0; i< bullets.length; i++){
+			danger = true;
+			random = (int)(Math.random()*3)+1;
+
+			if((bullets[i].getXSpeed()>0&&me.getX()>bullets[i].getX())||(bullets[i].getXSpeed()<0&&me.getX()<bullets[i].getX())&&Math.abs(me.getX()-bullets[i].getX())<100) {
+				
+				if((bullets[i].getY()>=me.getY()+13)&&(bullets[i].getY()<me.getY()+55)) {
+					//move down
+					move = BattleBotArena.UP;
+					System.out.println("u");
+					if(Math.abs(me.getY()-BattleBotArena.TOP_EDGE)<100) {
+						move = BattleBotArena.DOWN;
+					}
+				}
+				else if((	bullets[i].getY()<me.getY()+13)&&	bullets[i].getY()>me.getY()-30){
+					//move up
+					move = BattleBotArena.DOWN;
+					System.out.println("d");
+					if(Math.abs(me.getY()-BattleBotArena.BOTTOM_EDGE)<100) {
+						move = BattleBotArena.UP;
+					}
+	//			}else if(me.getX() <50) {
+	//				move = BattleBotArena.RIGHT;
+	//			}else if(me.getX()> (BattleBotArena.RIGHT_EDGE -100)) {
+	//				move = BattleBotArena.LEFT;
+				}
+			}	else if((bullets[i].getYSpeed()>0&&me.getY()>bullets[i].getY())||(bullets[i].getYSpeed()<0&&me.getY()<bullets[i].getY())&&Math.abs(me.getY()-bullets[i].getY())<100) {
+					danger = true;
+					if((bullets[i].getX()>=me.getX()+13)&&(bullets[i].getX()<me.getX()+55)) {
+						//move down
+						move = BattleBotArena.LEFT;
+						System.out.println("l");
+						if(Math.abs(me.getX()-BattleBotArena.LEFT_EDGE)<100) {
+							move = BattleBotArena.RIGHT;
+						}
+					}
+				}
+						
+				else if((bullets[i].getX()<me.getX()+13)&&(bullets[i].getX()>me.getX()-30)){
+						//move up
+	//					if (random < 2) {
+//							move = BattleBotArena.RIGHT;
+//						}else if (random >= 2) {
+//							move = BattleBotArena.LEFT;
+//						}
+						System.out.println("r");
+						if(Math.abs(me.getX()-BattleBotArena.RIGHT_EDGE)<100) {
+	//						if (random < 2) {
+	//							move = BattleBotArena.RIGHT;
+	//						}else if (random >= 2) {
+	//							move = BattleBotArena.LEFT;
+	//						}
+						}
+					}
+					else {
+						danger = false;
+					}
+		}
+			if (Math.random() < 0.02){
+				return BattleBotArena.SEND_MESSAGE;
+				}
+			
+			// Fire every now and then.
+			if (counter % 25 == 0 && shotOK ){
+				if (move == BattleBotArena.UP) {
+					return BattleBotArena.FIREDOWN;
+				}
+				else if (move == BattleBotArena.DOWN) {
+					return BattleBotArena.FIREUP;
+				}
+				else if (move == BattleBotArena.LEFT) {
+					return BattleBotArena.FIRERIGHT;
+				}
+				else if (move == BattleBotArena.RIGHT) {
+					return BattleBotArena.FIRELEFT;
+				}
+				if (random == 0) {
+					move = BattleBotArena.UP;
+				}else if(random == 1) {
+					move = BattleBotArena.DOWN;
+				}else if(random == 2) {
+					move = BattleBotArena.LEFT;
+				}else if(random == 3) {
+					move = BattleBotArena.RIGHT;
+				}
+			/*	closest = helper.findClosest(me, liveBots);
+                double dx = me.getX() - closest.getX();
+                double dxx = Math.abs(dx);
+                double dy = me.getY() - closest.getY();
+                double dyy = Math.abs(dy);   
+                if (dxx < Bot.RADIUS) {
+                    if (dy < 0) {
+                        move = BattleBotArena.FIREDOWN;
+                    }
+                    if (dy > 0) {
+                        move = BattleBotArena.FIREUP;
+                    }
+              }
+                if (dyy < Bot.RADIUS) {
+                    if (dx < 0) {
+                        move = BattleBotArena.FIRERIGHT;
+                    }
+                    if (dx > 0) {
+                        move = BattleBotArena.FIRELEFT;
+                    }
+               }*/
+				
+			
+		}
+	
+			// change direction when the counter runs down or I detect I am stuck
+			else if (counter == 5 || me.getX() == x && me.getY() == y)
+			{
+				if (random < 2 && move == BattleBotArena.UP)
+					move = BattleBotArena.LEFT;
+				else if (random < 2 && move == BattleBotArena.LEFT)
+					move = BattleBotArena.DOWN;
+				else if (random >= 2 && move == BattleBotArena.DOWN)
+					move = BattleBotArena.RIGHT;
+				else if (random >= 2 && move == BattleBotArena.RIGHT)
+					move = BattleBotArena.UP;
+				counter = 50+(int)(Math.random()*100);
+			}
+		
+			// update my record of my most recent position
+			x = me.getX();
+			y = me.getY();
+			// set the image to use for next draw
+			if (move == BattleBotArena.UP || move == BattleBotArena.FIREUP)
+				current = up;
+			else if (move == BattleBotArena.DOWN || move == BattleBotArena.FIREDOWN)
+				current = down;
+			else if (move == BattleBotArena.LEFT || move == BattleBotArena.FIRELEFT)
+				current = left;
+			else if (move == BattleBotArena.RIGHT || move == BattleBotArena.FIRERIGHT)
+				current = right;
+			return move;
+		
+		// TODO Auto-generated method stub
+	
+	}
+
+
+	/* (non-Javadoc)
+	 * @see bots.Bot#getName()
+	 */
+	@Override
+	public String getName() {
+		if (name == null){
+			name = "Perseus."+(botNumber<10?"0":"Ok.")+botNumber;
+			return name;
+		}
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see bots.Bot#getTeamName()
+	 */
+	@Override
+	public String getTeamName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see bots.Bot#imageNames()
+	 */
+	@Override
+	public String[] imageNames()
+	{
+		String[] images = {"Coin.png","Coin.png","Coin.png","Coin.png"};
+		return images;
+	}
+
+	/* (non-Javadoc)
+	 * @see bots.Bot#incomingMessage(int, java.lang.String)
+	 */
+	@Override
+	public void incomingMessage(int botNum, String msg) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/* (non-Javadoc)
+	 * @see bots.Bot#loadedImages(java.awt.Image[])
+	 */
+
+
+	/**
+		}
+	 * Store the loaded images
+	 */
+	public void loadedImages(Image[] images){
+
+		
+		if (images != null)		{
+			current = up = images[0];
+			down = images[1];
+			left = images[2];
+			right = images[3];
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see bots.Bot#newRound()
+	 */
+	@Override
+	public void newRound() {
+		// TODO Auto-generated method stub
+
+	}
+
+	/* (non-Javadoc)
+	 * @see bots.Bot#outgoingMessage()
+	 */
+	@Override
+	public String outgoingMessage() {
+		String mes = new String("You shall all fall before me.");
+		// TODO Auto-generated method stub
+		return mes;
+	}
+
+}
